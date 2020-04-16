@@ -65,7 +65,7 @@ else {
 System.out.println("Shampoo filter is not applied");
 }
 
-//lick on L'Oreal Paris Colour Protect Shampoo
+//clik on L'Oreal Paris Colour Protect Shampoo
 driver.findElementByXPath("(//div[@class='m-content__product-list__title']//span)[4]").click();
 
 //GO to the new window and select size as 175ml
