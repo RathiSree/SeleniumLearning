@@ -1,0 +1,107 @@
+package selenium.workout;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.interactions.Actions;
+
+public class MakeMyTrip {
+
+	public static void main(String[] args) throws InterruptedException {
+		System.setProperty("webdriver.chrome.driver", "./Drivers/chromedriver/chromedriver.exe");
+		ChromeOptions ops = new ChromeOptions ();
+		ops.addArguments("--disable-Notifications");
+		ChromeDriver driver=new ChromeDriver(ops);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+
+		//1) Go to https://www.makemytrip.com/
+		driver.get("https://www.makemytrip.com");
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+		
+			//2) Click Hotels
+		driver.findElementByXPath("//span[text()='Hotels']").click();
+		
+			//3) Enter city as Goa, and choose Goa, India
+		driver.findElementByXPath("//label[@for='city']").click();
+		driver.findElementByXPath("//input[@placeholder='Enter city/ Hotel/ Area/ Building']").sendKeys("Goa",Keys.ENTER);
+		Thread.sleep(1000);
+		driver.findElementByXPath("//p[text()='Goa, India']").click();
+		
+			//4) Enter Check in date as Next month 15th (May 15) and Check out as start date+5
+		driver.findElementById("checkin").click();
+		WebElement checkinMonth=driver.findElementByXPath("//div[@class='DayPicker-Month'][2]");
+		checkinMonth.findElement(By.xpath("(//div[text()='15'])[2]") ).click();
+		String checkinDate=checkinMonth.findElement(By.xpath("(//div[text()='15'])[2]") ).getText();
+		int checkinDate1=Integer.parseInt(checkinDate);
+		driver.findElementById("checkout").click();
+		WebElement checkoutMonth=driver.findElementByXPath("//div[@class='DayPicker-Month'][2]");
+		checkoutMonth.findElement(By.xpath("(//div[text()='"+(checkinDate1+5)+"'])[2]") ).click();
+		
+			//5) Click on ROOMS & GUESTS and click 2 Adults and one Children(age 12). Click Apply Button.
+		driver.findElementById("guest").click();
+		driver.findElementByXPath("//li[@data-cy='adults-2']").click();
+		driver.findElementByXPath("//li[@data-cy='children-1']").click();
+		Select age=new Select(driver.findElementByXPath("//select[@class='ageSelectBox']"));
+		age.selectByVisibleText("12");
+		driver.findElementByXPath("//button[@data-cy='submitGuest']").click();
+		Thread.sleep(5000);	
+		
+			//6) Click Search button
+		driver.findElementById("hsw_search_button").click();
+		Thread.sleep(5000);
+		driver.findElementByXPath("//a[@class='mapCont']").click();
+		Thread.sleep(5000);
+		driver.findElementByXPath("//span[@class='mapClose']").click();
+		Thread.sleep(5000);
+			
+			//7) Select locality as Baga
+		js.executeScript("window.scrollBy(0,800)");     //To scroll down the page
+		driver.findElementByXPath("//label[@for='mmLocality_checkbox_35']").click();
+	    Thread.sleep(5000);
+	   		
+		//8) Select 5 start in Star Category under Select Filters
+		js.executeScript("window.scrollBy(0,900)");
+		driver.findElementByXPath("//label[text()='5 Star']").click();
+		Thread.sleep(3000);
+							
+			//9) Click on the first resulting hotel and go to the new window
+		driver.findElementByXPath("(//div[@class='makeFlex spaceBetween'])[2]").click();
+		Set<String> allWindows = driver.getWindowHandles();
+		List<String> ls = new ArrayList<String>(allWindows);
+		driver.switchTo().window(ls.get(1));
+		
+			//10) Print the Hotel Name 
+		String hotelName=driver.findElementById("detpg_hotel_name").getText();
+		System.out.println("The hotel name is "+hotelName);
+		
+			//11) Click MORE OPTIONS link and Select 3Months plan and close
+		driver.findElementByXPath("(//span[text()='MORE OPTIONS'])[1]").click();
+		driver.findElementByXPath("(//span[@class='latoBold font12 pointer makeFlex hrtlCenter right blueText'])[1]").click();
+		driver.findElementByXPath("//span[@class='close']").click();
+		
+			//12) Click on BOOK THIS NOW
+		driver.findElementById("detpg_headerright_book_now").click();
+		
+			//13) Print the Total Payable amount
+		String payableAmount=driver.findElementById("revpg_total_payable_amt").getText();
+		String payableAmount1=payableAmount.replaceAll("\\D", "");
+		System.out.println("The Payable Amount is " +payableAmount1);
+		
+			//14) Close the browser
+		driver.close();
+
+	}
+
+}
