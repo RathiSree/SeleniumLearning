@@ -1,0 +1,98 @@
+package selenium.workout;
+
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+
+public class Zalando {
+
+	public static void main(String[] args) throws InterruptedException {
+		System.setProperty("webdriver.chrome.driver", "./Drivers/chromedriver/chromedriver.exe");
+		ChromeOptions ops = new ChromeOptions ();
+		ops.addArguments("--disable-Notifications");
+		ChromeDriver driver=new ChromeDriver(ops);
+		
+		
+			//1) Go to https://www.zalando.com/
+			driver.get("https://www.zalando.com");
+						
+			//2) Get the Alert text and print it
+			Alert alert=driver.switchTo().alert();
+			String message=alert.getText();
+			System.out.println("Alert Message: " +message);
+			
+			
+			//3) Close the Alert box and click on Zalando.uk
+			alert.accept();
+			Thread.sleep(500);
+			driver.manage().window().maximize();
+			driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+			driver.findElementByXPath("//a[@class='nav_link nav_link-gb']").click();
+			
+			//4) Click Women--> Clothing and click Coat
+			driver.findElementByXPath("(//span[@class='z-text z-navicat-header_genderText z-text-cta z-text-black'])[3]").click();
+			driver.findElementByXPath("(//span[@class='z-text z-navicat-header_categoryListLinkText z-text-cta z-text-black'])[3]").click();
+			driver.findElementByXPath("(//a[text()='Coats'])[1]").click();
+			
+			//5) Choose Material as cotton (100%) and Length as thigh-length
+			driver.findElementByXPath("//span[@data-label='Material']").click();
+			driver.findElementByXPath("//span[text()='cotton (100%)']").click();
+			driver.findElementByXPath("//button[@aria-label='apply the Material filter']").click();
+			driver.findElementByXPath("//span[@data-label='Length']").click();
+			driver.findElementByXPath("//span[text()='thigh-length']").click();
+			driver.findElementByXPath("//button[@aria-label='apply the Length filter']").click();
+			
+			//6) Click on Q/S designed by MANTEL - Parka coat
+			driver.findElementByXPath("//div[text()='Q/S designed by']").click();
+			
+			//7) Check the availability for Color as Olive and Size as 'M'
+			driver.findElementByXPath("(//img[@alt='olive'])[2]").click();
+			driver.findElementByXPath("//button[@aria-haspopup='listbox']").click();
+			driver.findElementByXPath("(//span[text()='M'])[2]").click();
+			String msg=driver.findElementByXPath("//h2[text()='Out of stock']").getText();
+			
+			//8) If the previous preference is not available, check  availability for Color Navy and Size 'M'
+			if(msg.equals("Out of stock")){
+				driver.findElementByXPath("(//img[@alt='navy'])[2]").click();
+				driver.findElementByXPath("//button[@aria-haspopup='listbox']").click();
+				driver.findElementByXPath("(//span[text()='M'])[2]").click();			
+			}
+			
+			//9) Add to bag only if Standard Delivery is free
+			String deliverymsg=driver.findElementByXPath("(//span[@class='AtOZbZ'])[2]").getText();
+			System.out.println("The delivery fee is: "+deliverymsg);
+			if(deliverymsg.contains("Free")) {
+			driver.findElementByXPath("//span[text()='Add to bag']").click();	
+			}
+			//10) Mouse over on Your Bag and Click on "Go to Bag"
+			WebElement yourbag=driver.findElementByXPath("//span[text()='Your bag']");
+			WebElement goToBag=driver.findElementByXPath("//div[text()='Go to bag']");
+			Actions action=new Actions(driver);
+			action.moveToElement(yourbag).perform();
+			action.click(goToBag).perform();
+			Thread.sleep(1000);
+						
+			//11) Capture the Estimated Deliver Date and print
+			String deliveryDate= driver.findElementByXPath("//div[@data-id='delivery-estimation']/span").getText();
+			 System.out.println("The Estimated Delivery Date is: "+deliveryDate);
+			 
+			//12) Mouse over on FREE DELIVERY & RETURNS*, get the tool tip text and print
+			 WebElement header=driver.findElementByXPath("//a[text()='Free delivery & returns*']");
+			 action.moveToElement(header).perform();
+			 WebElement title=driver.findElementByXPath("(//span[@class='z-navicat-header-uspBar_message-split_styled'])[2]").getAttribute(title);
+			 System.out.println("Message is: "+title);
+			 					 
+			//13) Click on FREE DELIVERY & RETURNS
+			 driver.findElementByXPath("//a[text()='Free delivery & returns*']").click();
+			 
+			//14) Click on Start chat in the Start chat and go to the new window
+			//15) Enter you first name and a dummy email and click Start Chat
+			//16) Type Hi, click Send and print thr reply message and close the chat window.
+
+	}
+
+}
