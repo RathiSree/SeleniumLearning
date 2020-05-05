@@ -1,0 +1,130 @@
+package selenium.workout;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+
+public class SnapDeal {
+
+	public static void main(String[] args) throws InterruptedException {
+		System.setProperty("webdriver.chrome.driver", "./Drivers/chromedriver/chromedriver.exe");
+		ChromeOptions ops = new ChromeOptions ();
+		ops.addArguments("--disable-Notifications");
+		ChromeDriver driver=new ChromeDriver(ops);
+		
+		//1) Go to https://www.snapdeal.com/
+		driver.get("https://www.snapdeal.com");
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+				
+		//2) Mouse over on Toys, Kids' Fashion & more and click on Toys
+		WebElement kids= driver.findElementByXPath("(//span[@class='catText'])[8]");
+		WebElement toys= driver.findElementByXPath("(//span[@class='headingText'])[126]");
+		Actions action=new Actions(driver);
+		action.moveToElement(kids).perform();
+		action.click(toys).perform();
+			
+         //3) Click Educational Toys in Toys & Games
+		driver.findElementByXPath("//div[text()='Educational Toys']").click();
+				
+		//4) Click the Customer Rating 4 star and Up
+		driver.findElementByXPath("//label[@for='avgRating-4.0']").click();
+		Thread.sleep(1500);
+
+		//5) Click the offer as 40-50
+		driver.findElementByXPath("//label[@for='discount-40%20-%2050']").click();
+		Thread.sleep(1000);
+		
+		//6) Check the availability for the pincode
+		driver.findElementByXPath("//input[@placeholder='Enter your pincode']").sendKeys("600119");
+		driver.findElementByXPath("//button[@class='pincode-check']").click();
+		Thread.sleep(2000);
+		
+		//7) Click the Quick View of the first product 
+		WebElement firsttoy=driver.findElementByXPath("(//p[@class='product-title'])[1]");
+		action.moveToElement(firsttoy).perform();
+		driver.findElementByXPath("(//div[@class='center quick-view-bar  btn btn-theme-secondary  '])[1]").click();
+		Thread.sleep(1000);
+		
+		//8) Click on View Details
+		driver.findElementByXPath("//a[@class=' btn btn-theme-secondary prodDetailBtn']").click();
+		
+		//9) Capture the Price of the Product and Delivery Charge
+		String toyprice=driver.findElementByXPath("//span[@itemprop='price']").getText();
+		int price1=Integer.parseInt(toyprice.replaceAll("\\D",""));
+		System.out.println("The toy price is: "+price1);
+		String toyDeliveryfee=driver.findElementByXPath("(//span[@class='availCharges'])[2]").getText();
+		int price2=Integer.parseInt(toyDeliveryfee.replaceAll("\\D",""));
+		System.out.println("The toy delivery fee is:"+price2);
+		int totalprice=price1+price2;
+		
+		//10) Validate the You Pay amount matches the sum of (price+deliver charge)
+		driver.findElementByXPath("(//span[@class='intialtext'])[1]").click();
+		String paymentAmount=driver.findElementByXPath("(//span[@class='price'])[2]").getText();
+		int price3=Integer.parseInt(paymentAmount.replaceAll("\\D",""));
+		System.out.println("The Payment Amount  is: "+price3);
+		if(price3==totalprice){
+			System.out.println("The Payment Amount matches");
+		}
+			else {
+				System.out.println("The Payment Amount doesn't match");
+			}
+	
+		
+		//11) Search for Sanitizer
+		driver.findElementByXPath("//input[@placeholder='Search products & brands']").click();
+		driver.findElementByXPath("//input[@class='col-xs-20 searchformInput keyword']").sendKeys("sanitizer");
+		driver.findElementByXPath("(//a[@data-labelname='sanitizer'])[2]").click();
+		Thread.sleep(2000);
+		
+		//12) Click on Product "BioAyurveda Neem Power Hand Sanitizer"
+		driver.findElementByXPath("(//p[@title='BioAyurveda Neem Power  Hand Sanitizer 500 mL Pack of 1'])[1]").click();
+		Thread.sleep(500);
+		
+		//13) Capture the Price and Delivery Charge
+		Set<String> allWindows = driver.getWindowHandles();
+		List<String> ls = new ArrayList<String>(allWindows);
+		String secwindow=ls.get(1);
+		driver.switchTo().window(secwindow);
+		String productPrice=driver.findElementByXPath("//span[@class='payBlkBig']").getText();
+		int price4=Integer.parseInt(productPrice.replaceAll("\\D",""));
+		System.out.println("The sanitizer price is "+price4);
+		String deliveryfee=driver.findElementByXPath("(//span[@class='availCharges'])[2]").getText();
+		int price5=Integer.parseInt(deliveryfee.replaceAll("\\D",""));
+		System.out.println("The sanitizer delivery fee is: "+price5);
+		int totalPrice2=price4+price5;
+		
+		//14) Click on Add to Cart
+		driver.findElementByXPath("(//span[text()='ADD TO CART'])[1]").click();
+		Thread.sleep(1000);
+		driver.navigate().refresh();
+		Thread.sleep(3000);
+		
+		//15) Click on Cart 
+		driver.findElementByXPath("//span[@class='cartTextSpan']").click();
+		
+		
+		//16) Validate the Proceed to Pay matches the total amount of both the products
+		String finalAmount=driver.findElementByXPath("//input[@class='btn btn-xl rippleWhite cart-button']").getAttribute("value");
+		int finalPrice=Integer.parseInt(finalAmount);
+		if(finalPrice==totalPrice2) {
+			System.out.println("The total of both the products matches");
+		}
+		else {
+			System.out.println("The total of both the products dosen't matches");
+		}
+		System.out.println("The final payment amount is:"+finalAmount);
+		
+		//17) Close all the windows
+		driver.quit();
+		
+
+	}
+
+}
