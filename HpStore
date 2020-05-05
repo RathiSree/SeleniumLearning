@@ -1,0 +1,101 @@
+package selenium.workout;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+
+public class HpStore {
+
+	public static void main(String[] args) throws InterruptedException {
+		System.setProperty("webdriver.chrome.driver", "./Drivers/chromedriver/chromedriver.exe");
+		ChromeOptions ops = new ChromeOptions ();
+		ops.addArguments("--disable-Notifications");
+		ChromeDriver driver=new ChromeDriver(ops);
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		
+	    //1) Go to https://store.hp.com/in-en/
+		driver.get("https://store.hp.com/in-en/");
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+		
+		//2) Mouse over on Laptops menu and click on Pavilion
+		Thread.sleep(1000);
+		WebElement laptops= driver.findElementByXPath("(//span[text()='Laptops'])[1]");
+		WebElement pavilion=driver.findElementByXPath("(//span[text()='Pavilion'])[1]");
+		Actions action= new Actions(driver);
+		action.moveToElement(laptops).perform();
+		Thread.sleep(500);
+		action.click(pavilion).perform();
+		Thread.sleep(1000);
+							
+		//3) Under SHOPPING OPTIONS -->Processor -->Select Intel Core i7
+		js.executeScript("window.scrollBy(0,300)");  
+		driver.findElementByXPath("(//span[text()='Processor'])[2]").click();
+		Thread.sleep(2000);
+		driver.findElementByXPath("//span[text()='Intel Core i7']").click();
+		Thread.sleep(2000);
+		
+		//4) Hard Drive Capacity -->More than 1TB
+		js.executeScript("window.scrollBy(0,600)"); 
+		driver.findElementByXPath("(//input[@class='product-filter-checkbox'])[14]").click();
+		Thread.sleep(3000);
+		
+		//5) Select Sort By: Price: Low to High
+		js.executeScript("window.scrollBy(0,-300)");
+		driver.findElementByXPath("//select[@class='sorter-options option-new'][1]").click();
+		driver.findElementByXPath("(//option[@value='price_asc'])[1]").click();
+		Thread.sleep(2000);
+		
+		//6) Print the First resulting Product Name and Price
+		String productName=	driver.findElementByXPath("(//strong[@class='product name product-item-name'])[1]").getText();
+		System.out.println("The first resulting product name is " +productName );
+		String productprice=driver.findElementByXPath("(//span[@class='price'])[2]").getText();
+		String productprice1=productprice.replaceAll("\\D", "");
+		System.out.println("The first resulting product price is " +productprice1 );
+				
+		//7) Click on Add to Cart
+		driver.findElementByXPath("(//button[@title='Add To Cart'])[1]").click();
+		Thread.sleep(500);
+						
+		//8) Click on Shopping Cart icon --> Click on View and Edit Cart
+		driver.findElementByXPath("//a[@class='action showcart']").click();
+		driver.findElementByXPath("//a[@class='action primary viewcart']").click();
+			
+		//9) Check the Shipping Option --> Check availability at Pincode
+			
+		driver.findElementByXPath("//body[@class='elasticsearch-product-filter checkout-cart-index page-layout-1column']").sendKeys("600119");
+		driver.findElementByXPath("//button[@class='primary standard_delivery-button']").click();
+									
+		//10) Verify the order Total against the product price
+		String orderTotal =	driver.findElementByXPath("//span[@data-bind='text: getValue()']").getText();
+		String orderTotal1=orderTotal.replaceAll("\\D", "");
+		System.out.println("The order total price is " +orderTotal1 );
+		if(productprice.equals(orderTotal)) {
+			System.out.println("The product price equals order total");
+		}else {
+				System.out.println("The product price not equals order total");
+			}
+				
+		//11) Proceed to Checkout if Order Total and Product Price matches
+		if(productprice.equals(orderTotal)) {
+		driver.findElementByXPath("(//button[@data-role='proceed-to-checkout'])[1]").click();
+		}
+					
+		//12) Click on Place Order
+		driver.findElementByXPath("(//span[text()='Place Order'])[1]").click();
+		
+		//13) Capture the Error message and Print
+		String errorMessage=driver.findElementByXPath("//div[@class='message global inside-notice  floating']//b").getText();
+		System.out.println("The error messgae is: "+errorMessage);
+		//14) Close Browser
+		driver.close();
+		}
+
+	}
+
+
