@@ -1,0 +1,109 @@
+package selenium.workout;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+
+public class Pepperfry {
+
+public static void main(String[] args) throws InterruptedException, IOException {
+ 
+System.setProperty("webdriver.chrome.driver", "./Drivers/chromedriver/chromedriver.exe");
+ChromeOptions ops = new ChromeOptions ();
+ops.addArguments("--disable-Notifications");
+ChromeDriver driver=new ChromeDriver(ops);
+JavascriptExecutor js = (JavascriptExecutor) driver;
+
+//1) Go to https://www.pepperfry.com/
+driver.get("https://www.pepperfry.com");
+driver.manage().window().maximize();
+driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+
+
+//2) Mouseover on Furniture and click Office Chairs under Chairs
+WebElement furniture=driver.findElementByXPath("//a[@rel='meta-furniture']");
+WebElement officeChairs=driver.findElementByXPath("(//a[@class='hvr-col-listitem-link'])[30]");
+Actions action=new Actions(driver);
+action.moveToElement(furniture).perform();
+Thread.sleep(500);
+action.click(officeChairs).perform();
+
+
+//3) click Executive Chairs
+driver.findElementByXPath("(//h5[@class='clip-maincat-ttl pf-margin-0 font-14'])[2]").click();
+
+//4) Change the minimum Height as 50 in under Dimensions
+js.executeScript("window.scrollBy(0,600)");
+driver.findElementByXPath("(//input[@class='clipFilterDimensionHeightValue'])[1]").sendKeys("Keys,CLEAR","50","Keys.ENTER");
+Thread.sleep(8000);
+
+//5) Add "Poise Executive Chair in Black Colour" chair to Wishlist
+
+js.executeScript("window.scrollBy(0,-300)");
+Thread.sleep(500);
+driver.findElementByXPath("//a[@class='popup-close']").click();
+driver.findElementByXPath("//a[@data-productname='Poise Executive Chair in Black Colour']").click();
+
+//6) Mouseover on Homeware and Click Pressure Cookers under Cookware
+js.executeScript("window.scrollBy(0,-300)");
+WebElement homeware=driver.findElementByXPath("//a[@rel='meta-homeware']");
+WebElement pressurCooker=driver.findElementByXPath("//a[text()='Pressure Cookers']");
+Actions action1=new Actions(driver);
+action1.moveToElement(homeware).perform();
+Thread.sleep(300);
+action1.click(pressurCooker).perform();
+
+//7) Select Prestige as Brand
+driver.findElementByXPath("//label[@for='brandsnamePrestige']").click();
+Thread.sleep(500);
+
+//8) Select Capacity as 1-3 Ltr
+js.executeScript("window.scrollBy(0,1200)");
+Thread.sleep(500);
+driver.findElementByXPath("//input[@data-value='1 Ltr - 3 Ltr']").click();
+Thread.sleep(1000);
+
+//9) Add "Nakshatra Cute Metallic Red Aluminium Cooker 2 Ltr" to Wishlist
+driver.findElementByXPath("//a[@data-productname='Nakshatra Cute Metallic Red Aluminium Cooker 2 Ltr']").click();
+
+//10) Verify the number of items in Wishlist
+String wishlistcount=driver.findElementByXPath("(//span[@class='count_alert'])[2]").getText();
+System.out.println("The total item in wishlist is " +wishlistcount);
+
+//11) Navigate to Wishlist
+
+driver.findElementByXPath("//a[@class='pf-icon pf-icon-heart header_tab wistlist_img pending_alert active']").click();
+
+//12) Move Pressure Cooker only to Cart from Wishlist
+driver.findElementByXPath("(//i[@class='addtocart_icon pf-icon pf-icon-cart1'])[2]").click();
+
+//13) Check for the availability for Pincode 600128
+driver.findElementByXPath("//input[@class='srvc_pin_text']").sendKeys("600128");
+
+//14) Click Proceed to Pay Securely
+driver.findElementByXPath("//a[@class='proceed_cta']").click();
+
+//15 Click Proceed to Pay
+driver.findElementByXPath("(//a[@data-isloader='1'])[2]").click();
+Thread.sleep(3000);
+
+//16) Capture the screenshot of the item under Order Item
+driver.findElementByXPath("(//div[@class='nCheckout__accrodian-header-left'])[1]").click();
+WebElement screenshot=driver.findElementByXPath("//li[contains(@id,'payment_cart')]");
+File src = screenshot.getScreenshotAs(OutputType.FILE);
+File dst = new File("./snaps/pepperfry.png");
+FileUtils.copyFile(src, dst);
+
+//17) Close the browser
+driver.close();
+
+}
+}
