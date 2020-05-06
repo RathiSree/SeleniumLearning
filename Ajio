@@ -1,0 +1,131 @@
+package selenium.workout;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class Ajio {
+
+	public static void main(String[] args) throws InterruptedException {
+		System.setProperty("webdriver.chrome.driver", "./Drivers/chromedriver/chromedriver.exe");
+		ChromeOptions ops = new ChromeOptions ();
+		ops.addArguments("--disable-Notifications");
+		ChromeDriver driver=new ChromeDriver(ops);
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		WebDriverWait wt = new WebDriverWait(driver,30);
+
+		
+			//1)Go to https://www.ajio.com/
+		driver.get("https://www.ajio.com/shop/sale");
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(30,TimeUnit.SECONDS);
+		
+			//2) Enter Bags in the Search field and Select Bags in Women Handbags
+		driver.findElementByXPath("//input[@placeholder='Search AJIO']").sendKeys("Bags",Keys.ENTER);
+		driver.findElementByXPath("//label[@for='Women']").click();
+		Thread.sleep(1000);
+		driver.findElementByXPath("//label[@for='Women - Handbags']").click();
+		
+			//3) Click on five grid and Select SORT BY as "What's New"
+		driver.findElementByXPath("//div[@class='five-grid']").click();
+		Thread.sleep(500);
+		driver.findElementByXPath("//div[@class='filter-dropdown']").click();
+		driver.findElementByXPath("//option[@value='newn']").click();
+		Thread.sleep(1000);	
+			
+			//4) Enter Price Range Min as 2000 and Max as 5000
+		driver.findElementByXPath("(//span[@class='facet-left-pane-label'])[3]").click();
+		driver.findElementByXPath("//input[@name='minPrice']").sendKeys("2000",Keys.TAB);
+		driver.findElementByXPath("//input[@name='maxPrice']").sendKeys("5000	",Keys.ENTER);
+		Thread.sleep(1000);
+		
+			//5) Click on the product "Puma Ferrari LS Shoulder Bag"
+		driver.findElementByXPath("//img[@alt='Puma Red Shoulder Ferrari LS Shoulder Bag']").click();
+		
+			//6) Verify the Coupon code for the price above 2690 is applicable for your product, if applicable the get the Coupon Code and Calculate the discount price for the coupon
+		Set<String> allWindows = driver.getWindowHandles();
+		List<String> ls = new ArrayList<String>(allWindows);
+		String secwindow=ls.get(1);
+		driver.switchTo().window(secwindow);
+		int productPrice=Integer.parseInt(driver.findElementByXPath("//div[@class='prod-sp']").getText().replaceAll("\\D", ""));
+		System.out.println("product price is "+productPrice);
+		int offerValuePrice=2690;
+		int discountprice=(int) (productPrice*0.28);
+		if(productPrice>2690) {
+			System.out.println("The offer code EPIC is applicable");
+		String couponCode=driver.findElementByXPath("//div[@class='promo-title-blck']//div[1]").getText();
+		System.out.println("The offer code is: "+couponCode);
+		int discountprice1=(int) (productPrice*0.28);
+		System.out.println("The discount value is: "+discountprice1);
+		}else {
+			System.out.println("The offer code EPIC is not applicable");
+				}
+		
+			//7) Check the availability of the product for pincode 560043, print the expected delivery date if it is available
+		driver.findElementByXPath("//span[contains(@class,'edd-pincode-msg-details edd-pincode-msg-details-pointer')]").click();
+		driver.findElementByXPath("//input[@name='pincode']").sendKeys("682001",Keys.ENTER);
+		String deliverymessage=driver.findElementByXPath("//div[@class='edd-pincode-msg']").getText();
+		
+		if(deliverymessage.contains("Currently we do not deliver to ") ){
+			System.out.println("The delivery Messge is: "+deliverymessage);
+		}else {
+		String deliveryDate=driver.findElementByXPath("//span[@class='edd-message-success-details-highlighted']").getText();
+		System.out.println("The Expected delivery Date is: "+deliveryDate);
+		}
+		
+			//8) Click on Other Informations under Product Details and Print the Customer Care address, phone and email
+		driver.findElementByXPath("//div[@class='other-info-toggle']").click();
+		String customerCareDetails=driver.findElementByXPath("(//span[@class='other-info'])[6]").getText();
+		System.out.println("The Customer Care Address is: "+customerCareDetails);
+		
+			//9) Click on ADD TO BAG and then GO TO BAG
+		driver.findElementByXPath("//span[@class='ic-pdp-add-cart']").click();
+		Thread.sleep(8000);
+		driver.findElementByXPath("//span[@class='ic-pdp-add-cart']").click();
+		Thread.sleep(3000);
+		
+			//10) Check the Order Total before apply coupon
+		String orderTotal=driver.findElementByXPath("//span[@class='price-value bold-font']").getText();
+		String orderTotal1=orderTotal.replace("Rs. ", "");
+		String orderTotal2=orderTotal1.replace(",", "");
+		float orderTotal3=Float.parseFloat(orderTotal2);
+		int orderTotal4 = Math.round(orderTotal3);	
+		System.out.println("The total order value is: "+orderTotal4);
+		
+			//11) Enter Coupon Code and Click Apply
+		driver.findElementByXPath("//input[@placeholder='Enter coupon code']").sendKeys("EPIC");
+		driver.findElementByXPath("//button[@class='rilrtl-button button apply-button ']").click();
+		
+			//12) Verify the Coupon Savings amount(round off if it in decimal) under Order Summary and the matches the amount calculated in Product details
+		String couponSaving= driver.findElementByXPath("(//span[@class='price-value discount-price'])[2]").getText();
+		String couponSaving1=couponSaving.replace("Rs. ", "");
+		String couponSaving2=couponSaving1.replace(",", "");
+		float couponSaving3=Float.parseFloat(couponSaving2);
+		int couponSaving4 = Math.round(couponSaving3);
+		System.out.println("Coupon Saving Amount is: "+couponSaving4);
+		if(discountprice==couponSaving4) {
+			System.out.println("The Coupon savings Amount Matches");
+		}else {
+			System.out.println("The Coupon savings Amount doesnt Matches");
+		}
+			//13) Click on Delete and Delete the item from Bag
+		driver.findElementByXPath("//div[@class='delete-btn']").click();
+		Thread.sleep(400);
+		driver.findElementByXPath("(//div[@class='delete-btn'])[2]").click();
+		
+			//14) Close all the browsers
+		driver.quit();
+
+	}
+
+}
